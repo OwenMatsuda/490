@@ -5,7 +5,7 @@ import speech_recognition as sr
 
 r = sr.Recognizer()
 r.energy_threshold = 150
-r.pause_threshold = 5
+r.pause_threshold = 1
 with sr.Microphone() as source:
     r.adjust_for_ambient_noise(source, duration=0.2)
 
@@ -44,6 +44,7 @@ patients = [
                 "boosterPeriod": 0.5,  # in years,
             }
         ],
+        "notes": [],
     },
     {
         "name": "Ishwar Desai",
@@ -61,6 +62,7 @@ patients = [
             },
         ],
         "vaccinations": [],
+        "notes": [],
     },
 ]
 
@@ -82,7 +84,7 @@ def get_text(speak_text, duration=3):
             if speak_text != "":
                 tts(speak_text)
             print("recording")
-            audio = r.record(src, duration)
+            audio = r.listen(src)
             print("received audio")
             text = r.recognize_google(audio)
             print(text)
@@ -154,6 +156,33 @@ def add_vaccination(text):
         }
     )
 
+def add_allergen(text):
+    """add an allergen to the database"""
+
+    if "deadly" in text:
+        severity = "deadly"
+    elif "mild" in text:
+        severity = "mild"
+    else:
+        severity = "unspecified"
+
+    allergen = text.partition("allergen for")[2].strip()
+    tts(
+        "OK, I am adding an allergen for " + allergen + " to " + patient["name"] + "'s records"
+    )
+
+    for i in range(len(patient["allergies"])):
+        allergy = patient["allergies"][i]
+        if allergy["allergen"] == allergen:
+            del patient["allergies"][i]
+
+    patient["allergies"].append(
+        {
+            "allergen": allergen,
+            "severity": severity
+        }
+    )
+
 
 def get_allergies():
     """get the list of allergies from the database"""
@@ -168,18 +197,47 @@ def get_allergies():
     )
     tts(patient["name"] + " " + allergy_text)
 
+def add_note(text):
+    note = text.partition("note")[2].strip()
+    tts (
+        "OK, I am adding a note for " + note + " to " + patient["name"] + "'s records"
+    )
+    patient["notes"].append(note)
+
+def get_notes():
+    notes = patient["notes"]
+    tts (
+        "OK, here are the notes for " + patient["name"]
+    )
+
+    for i in range(len(notes)):
+        tts (
+            "Note " + str(i+1) + ": " + notes[i]
+        )
+
+    tts (
+        "End of notes"
+    )
+
 
 def process_audio(text):
     """speech processing to determine proper action"""
     global patient
-    if any_text(["vaccination", "vaccine", "booster"], text):
+    if any_text(["note", "notes"], text):
+        if "get" in text:
+            get_notes()
+        else:
+            add_note(text)
+    elif any_text(["vaccination", "vaccine", "booster"], text):
         if "get" in text:
             get_vaccinations()
         elif any_text(["add", "give"], text):
             add_vaccination(text)
-    elif any_text(["allergies", "allergy"], text):
+    elif any_text(["allergies", "allergy", "allergen"], text):
         if "get" in text:
             get_allergies()
+        elif any_text(["add", "give"], text):
+            add_allergen(text)
     elif any_text(["thanks", "thank you"], text):
         tts("You're welcome!")
     elif any_text(["patient"], text):
