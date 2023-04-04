@@ -7,12 +7,14 @@ class DigitalNurse:
     def __init__(self):
         self.r = sr.Recognizer()
         self.r.energy_threshold = 150
-        self.r.pause_threshold = 5
+        self.r.pause_threshold = 1
         with sr.Microphone() as source:
             self.r.adjust_for_ambient_noise(source, duration=0.2)
 
         self.engine = pyttsx3.init()
         self.engine.setProperty("rate", 165)
+
+        self.patient = None
 
         self.patients = [
             {
@@ -84,7 +86,7 @@ class DigitalNurse:
                 if speak_text != "":
                     self.tts(speak_text)
                 print("recording")
-                audio = self.r.record(src, duration)
+                audio = self.r.listen(src)
                 print("received audio")
                 text = self.r.recognize_google(audio)
                 print(text)
@@ -105,17 +107,19 @@ class DigitalNurse:
 
 
     def get_patient(self):
+        return self.patient
+
+    def set_patient(self):
         """get patient from database"""
-        while True:
-            name = self.loop_get_text("Please say the patient name")
-            confirm = self.loop_get_text("To confirm, the patient's name is" + name)
-            print("confirm: " + confirm)
-            if "yes" in confirm:
-                patient = next(
-                    (patient for patient in self.patients if patient["name"].lower() == name),
-                    None,
-                )
-                return patient
+        # while True:
+        name = self.loop_get_text("Please say the patient name")
+            # confirm = self.loop_get_text("To confirm, the patient's name is" + name)
+            # print("confirm: " + confirm)
+            # if "yes" in confirm:
+        self.patient = next(
+        (patient for patient in self.patients if patient["name"].lower() == name),
+            None,
+        )
 
     def get_vaccinations(self):
         """get the list of vaccinations from the database"""
@@ -184,18 +188,15 @@ class DigitalNurse:
             self.tts("You're welcome!")
         elif self.any_text(["patient"], text):
             if self.any_text(["update", "change"], text):
-                self.patient = self.get_patient()
+                self.patient = self.set_patient()
 
     def audio_loop(self):
-        while True:
-            print("looping")
-            cur_text = self.get_text("", 5)
-            if cur_text:
-                self.process_audio(cur_text)
+        print("looping")
+        cur_text = self.get_text("", 5)
+        if cur_text:
+            self.process_audio(cur_text)
 
 
-digital_nurse = DigitalNurse()
-digital_nurse.get_patient()
 
 
 

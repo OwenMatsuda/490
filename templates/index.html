@@ -11,14 +11,22 @@
    <button
         type="button"
         class="btn btn-primary"
-        onclick="btnName()"
-    >Click here
+        onclick="setPatient()"
+    >Set Patient
+    </button>
+    <button
+        type="button"
+        class="btn btn-primary"
+        onclick="getPatient()"
+    >Get Patient
     </button>
 </body>
 <script>
-    var btnName = function() {
-        fetch('/digital_nurse',)
+    var setPatient = function() {
+        fetch('/set_patient',)
     }
-    btnName()
+    var getPatient = function() {
+        window.location.replace('/get_patient',)
+    }
 </script>
 </html>
