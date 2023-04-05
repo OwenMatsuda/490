@@ -2,6 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
+        <link href="https://fonts.googleapis.com/css2?family=Saira:wght@400;600&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="{{ url_for('static', filename= 'style.css') }}">
         <title>Digital Nurse</title>
         <div id="visualizer"></div>
@@ -20,52 +21,59 @@
         onclick="getPatient()"
     >Get Patient
     </button> -->
-    <button
-        type="button"
-        class="btn btn-primary"
-        onclick="startRecording()"
-    >Activate Nurse
-    </button>
-    <button
-        type="button"
-        class="btn btn-primary"
-        onclick="stopRecording()"
-    >De-Activate Nurse
-    </button>
+    <div class="buttons">
+        <button
+            type="button"
+            class="btn btn-primary"
+            onclick="startRecording()"
+        >Activate Nurse
+        </button>
+        <button
+            type="button"
+            class="btn btn-primary"
+            onclick="stopRecording()"
+        >De-Activate Nurse
+        </button>
+    </div>
+    <div class="nurseIndicator">
+        Nurse Inactive
+    </div>
     <div>
-        <h1 id="output_text">SAMPLE</h1>
+        <h2>Output Text</h2>
+        <div class="outputText">
+
+        </div>
     </div>
 </body>
 <script>
     let activateNurse = false;
+    let nurseIndicator = document.querySelector(".nurseIndicator");
     var startRecording = async function() {
         activateNurse = true;
+        nurseIndicator.innerHTML = "Nurse Active";
+        nurseIndicator.style.background = "#96E6B3";
         while (activateNurse) {
             res = await fetch('/nurse')
             console.log(res)
-            if (!res.ok) {
-                await new Promise(res => setTimeout('', 5000));
-                console.log("done waiting");
-            }
             text = await res.text()
             console.log(text);
             if (text != "") {
-                let output_box = document.querySelector("#output_text");
-                output_box.innerHTML = text;
+                let wait_time = (text.length/(165*5) * 60) * 1000;
+                let output_box = document.querySelector(".outputText");
+                let output_text = ""
+                for (let i = 0; i < text.length; i++) {
+                    output_text += text[i];
+                    output_box.innerHTML = output_text;
+                    await new Promise(res => setTimeout(res, wait_time / text.length))
+                }
+                await new Promise(res => setTimeout(res, 2000));
             }
-            //  res.text().then(text => {
-            //     console.log(text);
-            //     if (text != "") {
-            //         let output_box = document.querySelector("#output_text");
-            //         output_box.innerHTML = text;
-            //     }
-            // });
-            let wait_time = (text.length/(165*4) * 60 + 1) * 1000
-            await new Promise(res => setTimeout(res, wait_time))
         }
     }
     var stopRecording = function() {
         activateNurse = false;
+        nurseIndicator.innerHTML = "Nurse Inactive";
+        nurseIndicator.style.background = "#D90429";
     }
     var setPatient = function() {
         fetch('/set_patient',)

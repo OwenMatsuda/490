@@ -277,8 +277,8 @@ class DigitalNurse:
         if self.engine._inLoop:
             self.engine.endLoop()
         self.patient = self.patients[0]
-        cur_text = self.get_text("", 5)
-        #cur_text = "get allergy"
+        # cur_text = self.get_text("", 5)
+        cur_text = "get allergy"
         if cur_text:
             return_text = self.process_audio(cur_text)
             return return_text
