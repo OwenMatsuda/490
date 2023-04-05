@@ -77,6 +77,8 @@ class DigitalNurse:
     def tts(self, command):
         """run tts"""
         self.engine.say(command)
+        if self.engine._inLoop:
+            self.engine.endLoop()
         self.engine.runAndWait()
 
     def get_text(self, speak_text, duration=3):
@@ -163,38 +165,53 @@ class DigitalNurse:
     def get_allergies(self):
         """get the list of allergies from the database"""
         allergies = self.patient["allergies"]
+        message = ""
         if len(allergies) == 0:
-            self.tts(self.patient["pronouns"][0] + " doesn't have any allergies")
+            message = self.patient["pronouns"][0] + " doesn't have any allergies"
+            self.tts(message)
         allergy_text = " and ".join(
             [
                 "has a " + allergy["severity"] + " " + allergy["allergen"] + " allergy "
                 for allergy in allergies
             ]
         )
-        self.tts(self.patient["name"] + " " + allergy_text)
+        message2 = self.patient["name"] + " " + allergy_text
+        message += message2
+        self.tts(message2)
+        print(1)
+        print(message)
+
+        return message
 
 
     def process_audio(self, text):
         """speech processing to determine proper action"""
+        output = ""
         if self.any_text(["vaccination", "vaccine", "booster"], text):
             if "get" in text:
-                self.get_vaccinations()
+                output = self.get_vaccinations()
             elif self.any_text(["add", "give"], text):
-                self.add_vaccination(text)
+                output = self.add_vaccination(text)
         elif self.any_text(["allergies", "allergy"], text):
             if "get" in text:
-                self.get_allergies()
+                output = self.get_allergies()
         elif self.any_text(["thanks", "thank you"], text):
-            self.tts("You're welcome!")
+            output = self.tts("You're welcome!")
         elif self.any_text(["patient"], text):
             if self.any_text(["update", "change"], text):
-                self.patient = self.set_patient()
+                output = self.patient = self.set_patient()
+
+        print(2)
+        print(output)
+        return output
 
     def audio_loop(self):
         print("looping")
+        self.patient = self.patients[0]
         cur_text = self.get_text("", 5)
+        # cur_text = "get allergy"
         if cur_text:
-            self.process_audio(cur_text)
+            return self.process_audio(cur_text)
 
 
 
