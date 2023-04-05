@@ -32,10 +32,14 @@
 </body>
 <script>
     var startRecording = async function() {
-        while (true) {
-            await fetch('/nurse').then(res => {
-                return res.text()
-            }).then(text => {
+        for (let i = 0; i < 5; i++) {
+            res = await fetch('/nurse')
+            console.log(res)
+            if (!res.ok) {
+                await new Promise(res => setTimeout('', 5000));
+                console.log("done waiting");
+            }
+            res.text().then(text => {
                 console.log(text);
                 if (text != "") {
                     let output_box = document.querySelector("#output_text");

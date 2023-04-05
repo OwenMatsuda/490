@@ -2,6 +2,7 @@
 import datetime
 import pyttsx3
 import speech_recognition as sr
+import time
 
 class DigitalNurse:
     def __init__(self):
@@ -79,9 +80,11 @@ class DigitalNurse:
     def tts(self, command):
         """run tts"""
         self.engine.say(command)
-        if self.engine._inLoop:
-            self.engine.endLoop()
         self.engine.runAndWait()
+        while (self.engine.isBusy()):
+            print("bussy")
+            time.sleep(1)
+        self.engine.endLoop()
 
     def get_text(self, speak_text, duration=3):
         """call google API to interpret audio recording"""
@@ -267,11 +270,22 @@ class DigitalNurse:
     def audio_loop(self):
         print("looping")
         self.patient = self.patients[0]
-        cur_text = self.get_text("", 5)
-        # cur_text = "get allergy"
+        # cur_text = self.get_text("", 5)
+        cur_text = "get allergy"
         if cur_text:
-            return self.process_audio(cur_text)
+            return_text = self.process_audio(cur_text)
+            return return_text
 
 
-digital_nurse = DigitalNurse()
-digital_nurse.get_patient()
+
+
+
+    # patient = get_patient()
+    # print(patient)
+    # while True:
+    #     print("looping")
+    #     cur_text = get_text("", 5)
+    #     if cur_text:
+    #         process_audio(cur_text)
+
+
