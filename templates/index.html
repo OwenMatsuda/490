@@ -64,7 +64,7 @@
                 for (let i = 0; i < text.length; i++) {
                     output_text += text[i];
                     output_box.innerHTML = output_text;
-                    await new Promise(res => setTimeout(res, wait_time / text.length))
+                    await new Promise(res => setTimeout(res, wait_time / text.length - 3))
                 }
                 await new Promise(res => setTimeout(res, 2000));
             }

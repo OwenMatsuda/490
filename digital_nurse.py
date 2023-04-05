@@ -141,7 +141,6 @@ class DigitalNurse:
             ]
         )
         
-        print("Here")
         output2 = self.patient["pronouns"][0] + " got " + vaccine_text + "\n"
         time_since_last_shot = datetime.datetime.today() - shots[-1]["date"]
         time_in_years = time_since_last_shot.days / 365
@@ -188,8 +187,6 @@ class DigitalNurse:
         message2 = self.patient["name"] + " " + allergy_text
         message += message2
         self.tts(message2)
-        print(1)
-        print(message)
 
         return message
 
@@ -273,26 +270,10 @@ class DigitalNurse:
         return output
 
     def audio_loop(self):
-        print("looping")
         if self.engine._inLoop:
             self.engine.endLoop()
         self.patient = self.patients[0]
-        # cur_text = self.get_text("", 5)
-        cur_text = "get allergy"
+        cur_text = self.get_text("", 5)
         if cur_text:
             return_text = self.process_audio(cur_text)
             return return_text
-
-
-
-
-
-    # patient = get_patient()
-    # print(patient)
-    # while True:
-    #     print("looping")
-    #     cur_text = get_text("", 5)
-    #     if cur_text:
-    #         process_audio(cur_text)
-
-
