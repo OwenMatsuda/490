@@ -148,51 +148,50 @@ class DigitalNurse:
         if time_in_years > vaccine["boosterPeriod"]:
             output3 = "However, " + self.patient["pronouns"][0] + " is due for a booster"
         output = output1 + output2 + output3
-        self.tts(output)
         return output1 + output2 + output3
 
 
     def add_vaccination(self, text):
         """add a vaccination to database"""
+        output = ""
         if "moderna" in text:
             brand = "Moderna"
         elif "pfizer" in text:
             brand = "Pfizer"
         elif "Johnson" in text:
             brand = "Johnson and Johnson"
-        self.tts(
-            "OK, I am adding a " + brand + " booster to " + self.patient["name"] + "'s records"
-        )
+        output += "OK, I am adding a " + brand + " booster to " + self.patient["name"] + "'s records\n"
         self.patient["vaccinations"][0]["shots"].append(
             {
                 "brand": brand,
                 "date": datetime.datetime.today(),
             }
         )
+        return output
 
 
     def get_allergies(self):
         """get the list of allergies from the database"""
+        output = ""
         allergies = self.patient["allergies"]
-        message = ""
         if len(allergies) == 0:
-            message = self.patient["pronouns"][0] + " doesn't have any allergies"
-            self.tts(message)
+            output += self.patient["pronouns"][0] + " doesn't have any allergies\n"
+            return output
+        
         allergy_text = " and ".join(
             [
                 "has a " + allergy["severity"] + " " + allergy["allergen"] + " allergy "
                 for allergy in allergies
             ]
         )
-        message2 = self.patient["name"] + " " + allergy_text
-        message += message2
-        self.tts(message2)
+        output += self.patient["name"] + " " + allergy_text
 
-        return message
+        return output
 
 
     def add_allergen(self, text):
         """add an allergen to the database"""
+        output = ""
 
         if "deadly" in text:
             severity = "deadly"
@@ -202,9 +201,7 @@ class DigitalNurse:
             severity = "unspecified"
 
         allergen = text.partition("allergen for")[2].strip()
-        self.tts(
-            "OK, I am adding an allergen for " + allergen + " to " + self.patient["name"] + "'s records"
-        )
+        output += "OK, I am adding an allergen for " + allergen + " to " + self.patient["name"] + "'s records\n"
 
         for i in range(len(self.patient["allergies"])):
             allergy = self.patient["allergies"][i]
@@ -218,28 +215,28 @@ class DigitalNurse:
             }
         )
 
+        return output
+
     def add_note(self, text):
         note = text.partition("note")[2].strip()
-        self.tts (
-            "OK, I am adding a note for " + note + " to " + self.patient["name"] + "'s records"
-        )
+        output = ""
+        output += "OK, I am adding a note for " + note + " to " + self.patient["name"] + "'s records"
         self.patient["notes"].append(note)
+
+        return output
 
     
     def get_notes(self):
         notes = self.patient["notes"]
-        self.tts (
-            "OK, here are the notes for " + patient["name"]
-        )
+        output = ""
+        output += "OK, here are the notes for " + self.patient["name"] + "\n"
 
         for i in range(len(notes)):
-            self.tts (
-                "Note " + str(i+1) + ": " + notes[i]
-            )
+            output += "Note " + str(i+1) + ": " + notes[i] + "\n"
 
-        self.tts (
-            "End of notes"
-        )
+        output += "End of notes\n"
+
+        return output
 
 
     def process_audio(self, text):
@@ -254,18 +251,19 @@ class DigitalNurse:
             if "get" in text:
                 output = self.get_vaccinations()
             elif self.any_text(["add", "give"], text):
-                soutput = self.add_vaccination(text)
+                output = self.add_vaccination(text)
         elif self.any_text(["allergies", "allergy", "allergen"], text):
             if "get" in text:
                 output = self.get_allergies()
             elif self.any_text(["add", "give"], text):
                 output = self.add_allergen(text)
         elif self.any_text(["thanks", "thank you"], text):
-            output = self.tts("You're welcome!")
+            output = "You're welcome!"
         elif self.any_text(["patient"], text):
             if self.any_text(["update", "change"], text):
                 output = self.set_patient()
 
+        self.tts(output)
         print(output)
         return output
 
