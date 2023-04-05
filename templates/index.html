@@ -39,13 +39,21 @@
                 await new Promise(res => setTimeout('', 5000));
                 console.log("done waiting");
             }
-            res.text().then(text => {
-                console.log(text);
-                if (text != "") {
-                    let output_box = document.querySelector("#output_text");
-                    output_box.innerHTML = text;
-                }
-            });
+            text = await res.text()
+            console.log(text);
+            if (text != "") {
+                let output_box = document.querySelector("#output_text");
+                output_box.innerHTML = text;
+            }
+            //  res.text().then(text => {
+            //     console.log(text);
+            //     if (text != "") {
+            //         let output_box = document.querySelector("#output_text");
+            //         output_box.innerHTML = text;
+            //     }
+            // });
+            let wait_time = (text.length/(165*4) * 60 + 1) * 1000
+            await new Promise(res => setTimeout(res, wait_time))
         }
     }
     var setPatient = function() {

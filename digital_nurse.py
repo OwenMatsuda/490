@@ -9,11 +9,11 @@ class DigitalNurse:
         self.r = sr.Recognizer()
         self.r.energy_threshold = 150
         self.r.pause_threshold = 1
+        self.engine = pyttsx3.init()
+        self.engine.setProperty("rate", 165)
         with sr.Microphone() as source:
             self.r.adjust_for_ambient_noise(source, duration=0.2)
 
-        self.engine = pyttsx3.init()
-        self.engine.setProperty("rate", 165)
 
         self.patient = None
 
@@ -79,12 +79,10 @@ class DigitalNurse:
 
     def tts(self, command):
         """run tts"""
+        # wait_time = len(command)/(165*4) * 60 + 1
         self.engine.say(command)
         self.engine.runAndWait()
-        while (self.engine.isBusy()):
-            print("bussy")
-            time.sleep(1)
-        self.engine.endLoop()
+        # time.sleep(wait_time)
 
     def get_text(self, speak_text, duration=3):
         """call google API to interpret audio recording"""
@@ -131,21 +129,28 @@ class DigitalNurse:
     def get_vaccinations(self):
         """get the list of vaccinations from the database"""
         vaccine = self.patient["vaccinations"][0]
+        output = ""
         shots = vaccine["shots"]
+        output1 = ""
         if len(shots) == 0:
-            self.tts(self.patient["pronouns"][0] + " hasn't got the " + vaccine["name"])
+            output1 = self.patient["pronouns"][0] + " hasn't got the " + vaccine["name"] + "\n"
         vaccine_text = " and ".join(
             [
                 "the " + shot["brand"] + " in " + shot["date"].strftime("%B %Y")
                 for shot in shots
             ]
         )
-
-        self.tts(self.patient["pronouns"][0] + " got " + vaccine_text)
+        
+        print("Here")
+        output2 = self.patient["pronouns"][0] + " got " + vaccine_text + "\n"
         time_since_last_shot = datetime.datetime.today() - shots[-1]["date"]
         time_in_years = time_since_last_shot.days / 365
+        output3 = ""
         if time_in_years > vaccine["boosterPeriod"]:
-            self.tts("However, " + self.patient["pronouns"][0] + " is due for a booster")
+            output3 = "However, " + self.patient["pronouns"][0] + " is due for a booster"
+        output = output1 + output2 + output3
+        self.tts(output)
+        return output1 + output2 + output3
 
 
     def add_vaccination(self, text):
@@ -269,9 +274,11 @@ class DigitalNurse:
 
     def audio_loop(self):
         print("looping")
+        if self.engine._inLoop:
+            self.engine.endLoop()
         self.patient = self.patients[0]
-        # cur_text = self.get_text("", 5)
-        cur_text = "get allergy"
+        cur_text = self.get_text("", 5)
+        #cur_text = "get allergy"
         if cur_text:
             return_text = self.process_audio(cur_text)
             return return_text
