@@ -20,8 +20,22 @@
         onclick="getPatient()"
     >Get Patient
     </button>
+    <div>
+        <h1 id="output_text">SAMPLE</h1>
+    </div>
 </body>
 <script>
+    while (true) {
+        fetch('/nurse').then(res => {
+            return res.text()
+        }).then(text => {
+            console.log(text);
+            if (text != "") {
+                let output_box = document.querySelector("#output_text");
+                output_box.innerHTML = text;
+            }
+        });
+    }
     var setPatient = function() {
         fetch('/set_patient',)
     }
