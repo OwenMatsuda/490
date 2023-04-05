@@ -8,7 +8,7 @@
     </head>
 <body>
    <h1>Digital Nurse</h1>
-   <button
+   <!-- <button
         type="button"
         class="btn btn-primary"
         onclick="setPatient()"
@@ -19,20 +19,28 @@
         class="btn btn-primary"
         onclick="getPatient()"
     >Get Patient
-    </button>
+    </button> -->
     <button
         type="button"
         class="btn btn-primary"
         onclick="startRecording()"
     >Activate Nurse
     </button>
+    <button
+        type="button"
+        class="btn btn-primary"
+        onclick="stopRecording()"
+    >De-Activate Nurse
+    </button>
     <div>
         <h1 id="output_text">SAMPLE</h1>
     </div>
 </body>
 <script>
+    let activateNurse = false;
     var startRecording = async function() {
-        for (let i = 0; i < 5; i++) {
+        activateNurse = true;
+        while (activateNurse) {
             res = await fetch('/nurse')
             console.log(res)
             if (!res.ok) {
@@ -55,6 +63,9 @@
             let wait_time = (text.length/(165*4) * 60 + 1) * 1000
             await new Promise(res => setTimeout(res, wait_time))
         }
+    }
+    var stopRecording = function() {
+        activateNurse = false;
     }
     var setPatient = function() {
         fetch('/set_patient',)
