@@ -1,5 +1,6 @@
 let activateNurse = false;
 let nurseIndicator = document.querySelector(".nurseIndicator");
+
 var startRecording = async function() {
     activateNurse = true;
     nurseIndicator.innerHTML = "Nurse Active";
@@ -23,14 +24,17 @@ var startRecording = async function() {
         }
     }
 }
+
 var stopRecording = function() {
     activateNurse = false;
     nurseIndicator.innerHTML = "Nurse Inactive";
     nurseIndicator.style.background = "#D90429";
 }
+
 var setPatient = function() {
     fetch('/set_patient',)
 }
+
 var getPatient = function() {
     window.location.replace('/get_patient',)
 }

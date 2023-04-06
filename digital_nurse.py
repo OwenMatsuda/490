@@ -91,7 +91,6 @@ class DigitalNurse:
                 if speak_text != "":
                     self.tts(speak_text)
                 time.sleep(sleep_time)
-                print(sleep_time)
                 print("recording")
                 audio = self.r.record(src, 5)
                 print("received audio")
@@ -107,7 +106,6 @@ class DigitalNurse:
     def loop_get_text(self, speak_text, sleep_time=0):
         """continue looping until proper audio transcription is successful"""
         text = None
-        print(sleep_time)
         while not text:
             text = self.get_text(speak_text, sleep_time=sleep_time)
 
@@ -162,6 +160,7 @@ class DigitalNurse:
     def add_vaccination(self, text):
         """add a vaccination to database"""
         output = ""
+        brand = "Moderna"
         if "moderna" in text:
             brand = "Moderna"
         elif "pfizer" in text:
